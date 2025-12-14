@@ -1,0 +1,10 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Bem-vindo à nossa integração com o Google Calendar!</h2>
+    <p>Clique no botão abaixo para autorizar o acesso à sua conta do Google e começar a gerenciar seus calendários.</p>
+    <a href="{{ auth_url }}" class="button">Autorizar com Google</a>
+</div>
+{% endblock %}

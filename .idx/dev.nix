@@ -14,10 +14,21 @@
         install =
           "python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt";
         # Open editors for the following files by default, if they exist:
-        default.openFiles = [ "README.md" "src/index.html" "main.py" ];
+        default.openFiles = [ "README.md" "main.py" ];
       };
-      # Runs when a workspace is (re)started
-      onStart = { run-server = "./devserver.sh"; };
+    };
+    previews = {
+      enable = true;
+      previews = {
+        web = {
+          command = [
+            "bash"
+            "-c"
+            "source .venv/bin/activate && python -m flask --app main run --debug --host 0.0.0.0 --port $PORT"]
+          ;
+          manager = "web";
+        };
+      };
     };
   };
 }

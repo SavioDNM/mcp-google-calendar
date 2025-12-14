@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Minhas Agendas</h2>
+<ul class="item-list">
+    {% for calendar in calendars %}
+    <li>
+        <div class="item-info">
+            <span class="item-name">{{ calendar.summary }}</span>
+            <span class="availability">{{ calendar.availability }}</span>
+        </div>
+        <div class="action-buttons">
+            <button class="button button-secondary" onclick="openModal()">Agendar Horário</button>
+            <a href="{{ calendar.events_url }}" class="button">Ver Eventos</a>
+        </div>
+    </li>
+    {% else %}
+    <li>
+        <p>Nenhuma agenda encontrada ou erro ao carregar.</p>
+        <p>Por favor, autorize o acesso à sua conta do Google para ver suas agendas.</p>
+        <a href="{{ url_for('authorize') }}" class="button">Autorizar Agora</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

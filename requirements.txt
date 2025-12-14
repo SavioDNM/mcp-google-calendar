@@ -1,5 +1,6 @@
-pip
-autopep8
-Flask==3.0.3
-gunicorn==22.0.0
-Werkzeug==3.0.6
+flask
+google-api-python-client
+google-auth-oauthlib
+python-dateutil
+python-dotenv
+requests

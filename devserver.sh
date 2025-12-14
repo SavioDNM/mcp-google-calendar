@@ -1,3 +1,3 @@
-#!/bin/sh
-source .venv/bin/activate
-python -u -m flask --app main run --debug
+#!/bin/bash
+export FLASK_APP=main.py
+flask run --host=0.0.0.0 --port=5000

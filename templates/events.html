@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header-with-button">
+    <h2>Próximos Eventos</h2>
+    <a href="{{ create_event_url }}" class="button">Criar Novo Evento</a>
+</div>
+
+<ul class="item-list">
+    {% for event in events %}
+    <li>
+        <div class="item-info">
+            <span class="item-name">{{ event.summary }}</span>
+            <span class="availability">{{ event.start }}</span>
+        </div>
+        <form action="{{ url_for('delete_event', calendar_id=calendar_id, event_id=event.id, token=token) }}" method="post" style="display:inline;">
+            <button type="submit" class="button button-danger">Excluir</button>
+        </form>
+    </li>
+    {% else %}
+    <li>Não há próximos eventos nesta agenda.</li>
+    {% endfor %}
+</ul>
+
+<h3 style="margin-top: 2rem;">Disponibilidade de Hoje</h3>
+<div class="availability-grid">
+    {% for slot in availability_slots %}
+        <div class="availability-slot status-{{ slot.status.lower() }}">
+            <strong>{{ slot.time }}</strong>
+            <span>{{ slot.status }}</span>
+        </div>
+    {% endfor %}
+</div>
+
+
+<a href="{{ back_url }}" class="back-link">Voltar para Agendas</a>
+{% endblock %}

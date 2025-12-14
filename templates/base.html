@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Calendar API com Flask</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* --- Estilos para o Modal --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.6); 
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            margin: 5% auto; 
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .close-button {
+            color: var(--icon-color);
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--danger-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+    </style>
+</head>
+<body class="{{ 'dark-mode' if session.get('theme') == 'dark' else '' }}">
+
+    <div class="container">
+        <header>
+            <h1 class="google-title">
+                <span class="g-blue">G</span><span class="o-red">o</span><span class="o-yellow">o</span><span class="g-blue">g</span><span class="l-green">l</span><span class="o-red">e</span>
+                Calendar API
+            </h1>
+            <button class="theme-toggle-button" id="theme-toggle">
+                <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+        </header>
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+        <footer>
+            <p>&copy; {{ anocorrente }}</p>
+        </footer>
+    </div>
+
+    <!-- O Modal -->
+    <div id="schedule-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <iframe src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ3kav_u_VfLzoMBDC52QwF5HDPzeJWO9_W3S16rhgQyzYGPs7I4SGM73DVxY0SYNf5HKuz4eUdh?gv=true" 
+                    frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Lógica do Modal
+        const modal = document.getElementById('schedule-modal');
+        const closeButton = document.querySelector('.close-button');
+        
+        function openModal() {
+            if(modal) modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            if(modal) modal.style.display = 'none';
+        }
+
+        if (closeButton) {
+            closeButton.onclick = closeModal;
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Lógica do Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            // Envia a preferência para o servidor (opcional, mas bom para persistência)
+            fetch('/set-theme', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ theme: theme })
+            });
+        });
+    </script>
+</body>
+</html>

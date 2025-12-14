@@ -1,0 +1,75 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Criar Novo Evento</h2>
+
+{# --- Bloco para exibir mensagens de erro --- #}
+{% if error_message %}
+    <div class="error-message">
+        <p>{{ error_message }}</p>
+    </div>
+{% endif %}
+
+<form method="POST" action="{{ request.url }}" class="event-form">
+    <div class="form-group">
+        <label for="summary">Título do Evento</label>
+        <input type="text" id="summary" name="summary" value="{{ request.form.summary }}" required>
+    </div>
+    <div class="form-group">
+        <label for="start_datetime">Início</label>
+        <input type="datetime-local" id="start_datetime" name="start_datetime" value="{{ request.form.start_datetime }}" required>
+    </div>
+    <div class="form-group">
+        <label for="end_datetime">Fim</label>
+        <input type="datetime-local" id="end_datetime" name="end_datetime" value="{{ request.form.end_datetime }}" required>
+    </div>
+    <div class="form-actions">
+        <a href="{{ back_url }}" class="back-link">Cancelar</a>
+        <button type="submit" class="button">Salvar Evento</button>
+    </div>
+</form>
+
+{# Adicionando um pouco de estilo específico para o formulário e erro #}
+<style>
+.error-message {
+    background-color: #ffebee; /* Light Red */
+    color: #c62828; /* Dark Red */
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border: 1px solid var(--danger-color);
+}
+html.dark-mode .error-message {
+    background-color: #c62828;
+    color: #ffebee;
+}
+.event-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.form-group label {
+    font-weight: 500;
+}
+.form-group input {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+}
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+</style>
+{% endblock %}

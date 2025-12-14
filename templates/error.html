@@ -1,0 +1,10 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Ocorreu um Erro</h2>
+    <p>{{ message }}</p>
+    <a href="{{ url_for('index') }}" class="back-link">Tentar novamente</a>
+</div>
+{% endblock %}
