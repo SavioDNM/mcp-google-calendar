@@ -1,0 +1,54 @@
+
+main.chat-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.auth-card {
+    background-color: var(--chat-bg);
+    padding: 2.5rem 3rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    transition: background-color 0.3s;
+}
+
+.auth-card h2 {
+    font-weight: 700;
+    font-size: 1.7rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    transition: color 0.3s;
+}
+
+.auth-card p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    color: var(--text-color-secondary);
+    transition: color 0.3s;
+}
+
+.auth-button {
+    display: inline-block;
+    background-color: var(--button-bg);
+    color: white;
+    padding: 14px 28px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.auth-button:hover {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 132, 255, 0.3);
+}

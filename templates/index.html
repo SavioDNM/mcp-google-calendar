@@ -1,10 +1,14 @@
 
 {% extends "base.html" %}
 
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth_style.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="auth-container">
-    <h2>Bem-vindo à nossa integração com o Google Calendar!</h2>
-    <p>Clique no botão abaixo para autorizar o acesso à sua conta do Google e começar a gerenciar seus calendários.</p>
-    <a href="{{ auth_url }}" class="button">Autorizar com Google</a>
+<div class="auth-card">
+    <h2>Bem-vindo ao CalendAI!</h2>
+    <p>Clique no botão abaixo para autorizar o acesso à sua conta e começar a gerenciar seus calendários.</p>
+    <a href="{{ auth_url }}" class="auth-button">Autorizar Acesso</a>
 </div>
 {% endblock %}

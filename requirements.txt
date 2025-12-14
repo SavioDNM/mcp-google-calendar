@@ -1,6 +1,6 @@
-flask
-google-api-python-client
+Flask
 google-auth-oauthlib
-python-dateutil
+google-api-python-client
 python-dotenv
 requests
+openai
