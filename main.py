@@ -82,7 +82,7 @@ def list_events(service, calendar_id='primary', query=None, relative_date=None, 
         simplified_events = []
         for event in events:
             simplified_events.append({
-                'id': event['id'], # <-- ID do evento adicionado
+                'id': event['id'], 
                 'summary': event.get('summary', 'Sem Título'),
                 'start': event['start'].get('dateTime', event['start'].get('date')),
                 'end': event['end'].get('dateTime', event['end'].get('date'))
@@ -106,7 +106,6 @@ def create_event(service, summary, start_time, end_time, calendar_id='primary', 
     except HttpError as error:
         return {"error": f"An error occurred: {error}"}
 
-# --- NOVA FUNÇÃO DE EXCLUSÃO ---
 def delete_event(service, event_id, calendar_id='primary'):
     try:
         service.events().delete(calendarId=calendar_id, eventId=event_id).execute()
