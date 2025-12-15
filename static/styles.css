@@ -220,6 +220,7 @@ body::before {
 .message {
     display: flex;
     align-items: flex-start;
+    flex-direction: column;
     gap: 12px;
     max-width: 80%;
     padding: 14px 20px;
@@ -279,17 +280,37 @@ body::before {
 }
 
 .assistant-message ul, .assistant-message ol {
-    margin: 8px 0;
-    padding-left: 24px;
+    margin: 12px 0;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(70, 70, 95, 0.55), rgba(44, 44, 60, 0.65));
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-sm);
+    list-style: none;
 }
 
 .assistant-message li {
-    margin-bottom: 6px;
+    margin: 0;
+    padding: 10px 4px;
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.assistant-message li::marker {
-    color: var(--primary-color);
+.assistant-message li:last-child {
+    border-bottom: none;
+}
+
+.assistant-message li::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-color) 0%, var(--primary-color) 60%);
+    box-shadow: 0 0 8px rgba(138, 99, 210, 0.6);
+    flex-shrink: 0;
 }
 
 .assistant-message code {

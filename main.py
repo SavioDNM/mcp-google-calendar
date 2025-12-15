@@ -2,6 +2,7 @@
 import os
 import json
 import secrets
+import tempfile
 from datetime import datetime, timedelta
 import re
 from flask import Flask, redirect, url_for, request, render_template, jsonify, session
@@ -26,7 +27,8 @@ openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 TIMEZONE = 'America/Sao_Paulo'
 
 # --- Persistent Cache for OAuth State & Credentials ---
-CACHE_FILE = '/tmp/persistent_cache.json'
+# Use OS temp dir to stay cross-platform and writable.
+CACHE_FILE = os.path.join(tempfile.gettempdir(), "persistent_cache.json")
 
 def load_cache():
     if not os.path.exists(CACHE_FILE):
@@ -38,6 +40,8 @@ def load_cache():
         return {}
 
 def save_cache(cache):
+    # Ensure temp directory exists (it should, but keep safe)
+    os.makedirs(os.path.dirname(CACHE_FILE), exist_ok=True)
     with open(CACHE_FILE, 'w') as f:
         json.dump(cache, f, indent=2)
 
@@ -267,7 +271,8 @@ def sanitize_message_for_api(message):
 # --- OAuth & App Routes ---
 CLIENT_SECRETS_FILE = 'client_secret.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-REDIRECT_URI = 'https://5000-firebase-mcp-automation-1765672594756.cluster-fsmcisrvfbb5cr5mvra3hr3qyg.cloudworkstations.dev/oauth2callback'
+# Allow override via env; default to local to avoid proxy issues.
+REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://127.0.0.1:5000/oauth2callback")
 
 @app.route('/')
 def index():
