@@ -81,7 +81,12 @@ def search_events(service, query=None, calendar_name=None, date_filter=None, day
 
         tz = pytz.timezone(TIMEZONE)
         if date_filter:
-            start_dt = tz.localize(datetime.strptime(date_filter, '%Y-%m-%d').replace(hour=0, minute=0, second=0))
+            # Aceita entradas mais flexíveis do modelo, extraindo só a parte YYYY-MM-DD
+            match = re.search(r'\d{4}-\d{2}-\d{2}', str(date_filter))
+            if not match:
+                return {"error": f"Formato de data inválido: {date_filter}"}
+            parsed_date = datetime.strptime(match.group(0), '%Y-%m-%d')
+            start_dt = tz.localize(parsed_date.replace(hour=0, minute=0, second=0))
             end_dt = start_dt + timedelta(days=1)
             time_min = start_dt.isoformat()
             time_max = end_dt.isoformat()
@@ -223,8 +228,25 @@ tools = [
 def get_llm_response(messages, tools, final_call=False):
     tool_choice = "auto" if not final_call else "none"
     model_to_use = "llama-3.1-8b-instant"
-    system_prompt = '''
-Você é CalendAI, um assistente de agenda amigável e eficiente em português do Brasil (timezone America/Sao_Paulo).
+    # Data/hora atual no fuso configurado para servir de referência ao modelo
+    tz = pytz.timezone(TIMEZONE)
+    now = datetime.now(tz)
+    weekday_names_pt = [
+        "segunda-feira",
+        "terça-feira",
+        "quarta-feira",
+        "quinta-feira",
+        "sexta-feira",
+        "sábado",
+        "domingo",
+    ]
+    weekday_pt = weekday_names_pt[now.weekday()]
+    today_str = now.strftime("%d/%m/%Y")
+
+    system_prompt = f'''
+Você é CalendAI, um assistente de agenda amigável e eficiente em português do Brasil (timezone {TIMEZONE}).
+
+Hoje é {weekday_pt}, dia {today_str}. Use SEMPRE essa data como "agora" para interpretar pedidos relativos como "hoje", "amanhã" ou "semana que vem".
 
 ### FLUXO DE TRABALHO OBRIGATÓRIO
 1.  **PARA LISTAR AGENDAS:** Use `list_calendars`.
@@ -249,7 +271,7 @@ Você é CalendAI, um assistente de agenda amigável e eficiente em português d
     -   Use: "⚠️ **Conflito de Horário!** O horário solicitado já está ocupado. Por favor, escolha outro."
 -   **Erros Gerais:**
     -   Use: "Desculpe, não consegui processar sua solicitação. A ferramenta retornou um erro."
--   **SEMPRE** use formatação clara e agradável. **NUNCA** mostre IDs para o usuário, apenas os nomes e detalhes relevantes.
+--   **SEMPRE** use formatação clara e agradável. **NUNCA** mostre IDs para o usuário, apenas os nomes e detalhes relevantes.
 '''
     messages_with_system_prompt = [{"role": "system", "content": system_prompt}] + messages
     try:
