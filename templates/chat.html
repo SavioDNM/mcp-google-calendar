@@ -2,141 +2,101 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="chat-history" id="chat-history">
-    <!-- As mensagens do chat serão inseridas aqui dinamicamente -->
-</div>
-
-<div class="chat-input-area">
-    <textarea id="message-input" placeholder="Converse com o CalendAI..." required rows="1"></textarea>
-    <button id="send-button" type="submit">
-        <svg class="send-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-    </button>
+<div class="chat-container">
+    <div class="chat-box" id="chat-box">
+        <!-- As mensagens do chat serão inseridas aqui pelo JavaScript -->
+    </div>
+    <div class="chat-input-area">
+        <textarea id="user-input" placeholder="Converse com o CalendAI... (Shift+Enter para nova linha)" rows="1"></textarea>
+        <button id="send-btn">Enviar</button>
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const sendButton = document.getElementById('send-button');
-        const messageInput = document.getElementById('message-input');
-        const chatHistory = document.getElementById('chat-history');
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const token = '{{ token }}';
+        let messages = [];
 
-        // --- Histórico da Conversa e Prompt do Sistema com Exclusão ---
-        let messages = [
-            {
-                role: 'system',
-                content: `
-                    Você é o CalendAI, um assistente de calendário inteligente e direto ao ponto.
-
-                    **Sua Personalidade:**
-                    - Cordial, eficiente e sempre prestativo.
-
-                    **Regras de Comportamento (CRÍTICAS):**
-                    1.  **Vá Direto ao Ponto:** Use as ferramentas para responder aos pedidos do usuário sem anunciar suas ações. Sua resposta já deve ser o resultado final.
-                    2.  **Como Listar Eventos:**
-                        - Para "o que tenho hoje?", use list_events com relative_date: 'hoje'.
-                        - Para "e amanhã?", use list_events com relative_date: 'amanha'.
-                        - Para "próximos 5 dias", use list_events com duration_days: 5.
-                    3.  **Como Criar Eventos:**
-                        - Use a ferramenta create_event quando o usuário pedir para marcar, agendar ou criar algo.
-                    4.  **Como Excluir Eventos (FLUXO DE DUAS ETAPAS):**
-                        - **ETAPA 1: BUSCAR O EVENTO.** Se o usuário pedir para excluir um evento (ex: "exclua minha reunião de marketing"), você DEVE primeiro usar a ferramenta list_events com o parâmetro query preenchido com o nome do evento (ex: "reunião de marketing"). Isso retornará o ID do evento.
-                        - **ETAPA 2: EXCLUIR O EVENTO.** Depois de obter o ID, use a ferramenta delete_event com o event_id correto para excluí-lo.
-                        - Se list_events retornar vários eventos, pergunte ao usuário qual deles ele deseja excluir.
-                    5.  **Cumprimentos:** Se o usuário apenas disser "oi" ou "bom dia", responda de forma amigável e se coloque à disposição, SEM usar nenhuma ferramenta.
-
-                    **Regras de Formatação:**
-                    - Ao listar eventos, use Markdown e coloque o título dos eventos em negrito.
-                `
-            },
-            // --- Exemplo (Few-Shot) para Cumprimento ---
-            {
-                role: "user",
-                content: "Oi"
-            },
-            {
-                role: "assistant",
-                content: "Oi! 😊 Sou o CalendAI. Como posso ajudar com sua agenda hoje?"
+        function appendMessage(sender, text, isTyping = false) {
+            const existingTyping = document.querySelector('.assistant-typing');
+            if (existingTyping) {
+                existingTyping.remove();
             }
-        ];
-        
-        appendMessage('assistant', 'Olá! 👋 Eu sou o CalendAI. O que você gostaria de organizar na sua agenda?');
 
-        // --- Event Listeners & Funções do Chat (sem alterações) ---
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        messageInput.addEventListener('input', adjustInputHeight);
-
-        function appendMessage(role, text) {
             const messageWrapper = document.createElement('div');
-            messageWrapper.classList.add('chat-message', role + '-message');
-            const bubble = document.createElement('div');
-            bubble.classList.add('message-bubble');
-            let htmlContent = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-            bubble.innerHTML = htmlContent;
-            if (role === 'assistant') {
-                const avatar = document.createElement('div');
-                avatar.classList.add('assistant-avatar');
-                avatar.innerHTML = `<img src="{{ url_for('static', filename='6014401-1776079058.png') }}" alt="Assistente">`;
-                messageWrapper.appendChild(avatar);
+            messageWrapper.classList.add('message', `${sender}-message`);
+
+            if (isTyping) {
+                messageWrapper.classList.add('assistant-typing');
+                messageWrapper.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+            } else {
+                // Sanitize and render markdown
+                messageWrapper.innerHTML = marked.parse(text || '');
             }
-            messageWrapper.appendChild(bubble);
-            chatHistory.appendChild(messageWrapper);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+            
+            chatBox.appendChild(messageWrapper);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         async function sendMessage() {
-            const userMessageText = messageInput.value.trim();
-            if (!userMessageText) return;
-            appendMessage('user', userMessageText);
-            messages.push({ role: 'user', content: userMessageText });
-            messageInput.value = '';
-            adjustInputHeight();
-            const thinkingIndicator = appendThinkingIndicator();
+            const userText = userInput.value.trim();
+            if (!userText) return;
+
+            appendMessage('user', userText);
+            messages.push({ role: 'user', content: userText });
+            
+            userInput.value = '';
+            userInput.style.height = 'auto'; // Reset height
+            
+            appendMessage('assistant', '', true); // Show typing indicator
+
             try {
-                const response = await fetch("{{ url_for('chat', token=token) }}", {
+                const response = await fetch('/chat?token=' + token, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ messages: messages })
                 });
-                thinkingIndicator.remove();
-                if (response.ok) {
-                    const data = await response.json();
-                    messages = data.messages;
-                    appendMessage('assistant', data.reply);
-                } else {
+
+                if (!response.ok) {
                     const errorData = await response.json();
-                    appendMessage('assistant', `Erro: ${errorData.reply || 'Não foi possível obter uma resposta.'}`);
+                    const errorMessage = errorData.reply || `Erro ${response.status}: ${response.statusText}`;
+                    appendMessage('assistant', `⚠️ **Desculpe, ocorreu um erro no servidor:** ${errorMessage}`);
+                    return;
                 }
+
+                const data = await response.json();
+                messages = data.messages || [];
+                appendMessage('assistant', data.reply);
+
             } catch (error) {
-                thinkingIndicator.remove();
-                appendMessage('assistant', 'Desculpe, não foi possível conectar ao servidor.');
+                console.error('Fetch error:', error);
+                appendMessage('assistant', '⚠️ **Erro de conexão.** Não foi possível contatar o servidor.');
             }
         }
 
-        function appendThinkingIndicator() {
-            const thinkingElement = document.createElement('div');
-            thinkingElement.classList.add('chat-message', 'assistant-message', 'thinking');
-            thinkingElement.innerHTML = `
-                <div class="assistant-avatar">
-                    <img src="{{ url_for('static', filename='6014401-1776079058.png') }}" alt="Assistente">
-                </div>
-                <div class="message-bubble">...</div>
-            `;
-            chatHistory.appendChild(thinkingElement);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-            return thinkingElement;
-        }
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
 
-        function adjustInputHeight() {
-            messageInput.style.height = 'auto';
-            messageInput.style.height = (messageInput.scrollHeight) + 'px';
-        }
+        // Auto-resize textarea
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            userInput.style.height = `${userInput.scrollHeight}px`;
+        });
+
+        // Initial welcome message
+        messages.push({ role: 'assistant', content: 'Olá! 👋 Eu sou o CalendAI. Como posso ajudar a organizar sua agenda hoje?' });
+        appendMessage('assistant', messages[0].content);
     });
 </script>
 {% endblock %}

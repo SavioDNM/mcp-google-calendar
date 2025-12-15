@@ -4,3 +4,6 @@ google-api-python-client
 python-dotenv
 requests
 openai
+groq
+python-dateutil
+pytz
