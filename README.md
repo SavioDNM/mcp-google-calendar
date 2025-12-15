@@ -16,68 +16,80 @@ Este projeto é uma aplicação web desenvolvida com Flask que permite aos usuá
 ## Como Começar
 
 ### Pré-requisitos
-
-- Python 3.11 ou superior
-- Conta do Google e credenciais da API do Google Calendar (`client_secret.json`)
+- Python 3.11+
+- Uma conta Google e o arquivo de credenciais OAuth (`client_secret.json`) baixado do Google Cloud Console.
+- No console do Google Cloud, adicione o redirect URI que você for usar (exemplos abaixo) em “Authorized redirect URIs”.
 
 ### Instalação
-
-1.  **Clone o repositório:**
-    ```bash
-    git clone <URL_DO_REPOSITORIO>
-    cd <NOME_DO_DIRETORIO>
-    ```
-
-2.  **Crie e ative um ambiente virtual:**
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate
-    ```
-
-3.  **Instale as dependências:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4.  **Configure as credenciais:**
-    - Renomeie seu arquivo de credenciais da API do Google para `client_secret.json` e coloque-o na raiz do projeto.
-
-### Executando o Servidor
-
-Para iniciar o servidor de desenvolvimento, execute:
-
+1) Clone o repositório:
 ```bash
-./devserver.sh
+git clone <URL_DO_REPOSITORIO>
+cd <NOME_DO_DIRETORIO>
 ```
 
-A aplicação estará disponível em `http://localhost:5000`.
+2) Crie e ative o ambiente virtual  
+- Windows (PowerShell):
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate
+```
+- Linux/macOS:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+3) Instale as dependências:
+```bash
+pip install -r requirements.txt
+```
+
+4) Coloque o `client_secret.json` na raiz do projeto.
+
+### Redirect URI
+- Padrão local (recomendado): `http://127.0.0.1:5000/oauth2callback`
+- Se precisar usar outro host/porta, defina a variável de ambiente `REDIRECT_URI` com o mesmo valor autorizado no Google Cloud.
+
+### Rodando o servidor (dev)
+- Windows (PowerShell):
+```powershell
+.\.venv\Scripts\Activate
+$env:FLASK_APP="main.py"
+flask run --host=127.0.0.1 --port=5000
+```
+
+- Linux/macOS:
+```bash
+source .venv/bin/activate
+export FLASK_APP=main.py
+flask run --host=127.0.0.1 --port=5000
+```
+
+Abra em `http://127.0.0.1:5000` e clique em “Autorizar com Google Calendar”.
 
 ## Estrutura do Projeto
 
 ```
 .
 ├── main.py                # Lógica principal da aplicação Flask
-├── requirements.txt         # Dependências do projeto
-├── client_secret.json       # Credenciais da API (NÃO ENVIAR PARA O GIT)
-├── devserver.sh             # Script para iniciar o servidor
+├── requirements.txt       # Dependências do projeto
+├── client_secret.json     # Credenciais da API (NÃO ENVIAR PARA O GIT)
+├── devserver.sh           # Script (Linux/macOS) para iniciar o servidor
 ├── static/
-│   └── style.css            # Estilos da aplicação
+│   └── styles.css         # Estilos da aplicação
 └── templates/
-    ├── base.html            # Layout base
-    ├── index.html           # Página inicial
-    ├── calendars.html       # Lista de agendas
-    ├── events.html          # Lista de eventos de uma agenda
-    ├── create_event.html    # Formulário para criar evento
-    └── error.html           # Página de erro
+    ├── base.html          # Layout base
+    ├── index.html         # Página inicial
+    ├── chat.html          # Chat principal
+    └── error.html         # Página de erro
 ```
 
 ## Dependências
 
-As principais dependências do projeto são:
+Principais dependências:
+- Flask (servidor web)
+- google-auth-oauthlib / google-api-python-client (OAuth + Google Calendar)
+- python-dotenv, requests, python-dateutil, pytz
+- openai, groq (LLM opcional para respostas inteligentes)
 
-- **Flask:** Micro-framework web.
-- **google-auth-oauthlib:** Suporte para OAuth 2.0 com o Google.
-- **google-api-python-client:** Biblioteca cliente para as APIs do Google.
-- **python-dateutil:** Utilitários para manipulação de datas.
-
-Todas as dependências estão listadas no arquivo `requirements.txt`.
+Veja a lista completa em `requirements.txt`.
