@@ -129,7 +129,7 @@ def modify_calendar_event(service, event_id, calendar_id, action, new_title=None
             if new_date and new_start_time:
                 tz = pytz.timezone(TIMEZONE)
                 start_dt = tz.localize(datetime.strptime(f"{new_date} {new_start_time}", "%Y-%m-%d %H:%M"))
-                duration = int(new_duration_hours) if new_duration_hours else 1
+                duration = float(new_duration_hours) if new_duration_hours else 1
                 end_dt = start_dt + timedelta(hours=duration)
                 event['start'] = {'dateTime': start_dt.isoformat(), 'timeZone': TIMEZONE}
                 event['end'] = {'dateTime': end_dt.isoformat(), 'timeZone': TIMEZONE}
@@ -155,7 +155,7 @@ def smart_schedule_event(service, title, preferred_date, preferred_time, calenda
 
         tz = pytz.timezone(TIMEZONE)
         start_dt = tz.localize(datetime.strptime(f"{preferred_date} {preferred_time}", "%Y-%m-%d %H:%M"))
-        end_dt = start_dt + timedelta(hours=duration_hours)
+        end_dt = start_dt + timedelta(hours=float(duration_hours))
 
         if check_conflicts:
             freebusy_body = {"timeMin": start_dt.isoformat(), "timeMax": end_dt.isoformat(), "timeZone": TIMEZONE, "items": [{"id": calendar_id}]}
@@ -199,7 +199,7 @@ tools = [
             "new_title": {"type": ["string", "null"], "description": "O novo título para o evento (apenas para 'update')."},
             "new_date": {"type": ["string", "null"], "description": "A nova data no formato YYYY-MM-DD (apenas para 'update')."},
             "new_start_time": {"type": ["string", "null"], "description": "O novo horário no formato HH:MM (apenas para 'update')."},
-            "new_duration_hours": {"type": ["integer", "null"], "description": "A nova duração em horas (apenas para 'update')."}
+            "new_duration_hours": {"type": ["number", "null"], "description": "A nova duração em horas (ex: 1.5 para 1h 30min)."}
         }, "required": ["event_id", "calendar_id", "action"]}
     }},
     {"type": "function", "function": {
@@ -210,7 +210,7 @@ tools = [
             "preferred_date": {"type": "string", "description": "Data do evento no formato YYYY-MM-DD."},
             "preferred_time": {"type": "string", "description": "Horário do evento no formato HH:MM."},
             "calendar_name": {"type": ["string", "null"], "description": "Nome da agenda onde criar o evento (ex: 'Trabalho'). Se não informado, usa a agenda principal."},
-            "duration_hours": {"type": ["integer", "null"], "description": "Duração em horas. Padrão: 1."},
+            "duration_hours": {"type": ["number", "null"], "description": "Duração em horas (ex: 0.5 para 30 minutos). Padrão: 1."},
             "description": {"type": ["string", "null"], "description": "Descrição ou notas para o evento."}
         }, "required": ["title", "preferred_date", "preferred_time"]}
     }}
